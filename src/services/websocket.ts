@@ -1,6 +1,6 @@
 import { store } from '../store/store';
 import { addNotification } from '../store/notificationsSlice';
-import { updateFriendStatus } from '../store/friendsSlice';
+// import { updateFriendStatus } from '../store/friendsSlice';
 
 let socket: WebSocket | null = null;
 
@@ -20,7 +20,7 @@ export const connectWebSocket = (userId: string) => {
         }));
         break;
       case 'statusUpdate':
-        store.dispatch(updateFriendStatus(data.status));
+        //store.dispatch(updateFriendStatus(data.status));
         store.dispatch(addNotification({
           id: Date.now().toString(),
           type: 'statusUpdate',
