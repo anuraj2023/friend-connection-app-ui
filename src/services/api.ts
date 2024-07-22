@@ -9,6 +9,7 @@ import { User,
   UserWithStatus, 
   FriendDetailResponse } 
   from '../types';
+  import API_CONFIG from '../config'; 
 
 const isTokenExpired = () => {
   const token = Cookies.get('access_token');
@@ -23,15 +24,12 @@ const isTokenExpired = () => {
 // Use this function before making API calls
 const ensureValidToken = async () => {
   if (isTokenExpired()) {
-    // Redirect to login page or show login modal
-    // You might want to implement a refresh token mechanism here
+    console.log("Token expired, re-login needed")
   }
 };
 
-const API_URL = 'http://127.0.0.1:8000';
-
 const api = axios.create({
-  baseURL: API_URL,
+  baseURL: API_CONFIG.BASE_URL,
   withCredentials: true,
 });
 
@@ -92,12 +90,12 @@ export const updateStatus = async (status: string, userId: number): Promise<Stat
 };
 
 export const getStatus = async (userId: number): Promise<StatusUpdateResponse> => {
-  const response = await api.get(`http://127.0.0.1:8000/user/${userId}/status`);
+  const response = await api.get(`/user/${userId}/status`);
   return response.data;
 };
 
 export const getFriendListDetails = async (userId: number): Promise<FriendDetails[]> => {
-  const response = await api.get(`http://127.0.0.1:8000/friends/${userId}/details`);
+  const response = await api.get(`/friends/${userId}/details`);
   return response.data;
 };
 
