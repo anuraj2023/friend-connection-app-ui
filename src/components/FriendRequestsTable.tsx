@@ -27,7 +27,7 @@ const FriendRequestsTable: React.FC = () => {
     };
 
     fetchFriendRequests();
-  }, []);
+  }, [authState.loggedInUser]);
 
   const handleRequestAction = async (id: number, action: string) => {
     try {

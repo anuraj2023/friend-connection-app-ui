@@ -1,7 +1,14 @@
 import axios from 'axios';
 import Cookies from 'js-cookie';
 import {jwtDecode} from 'jwt-decode';
-import { User, FriendStatus, StatusUpdateResponse, FriendRequest, LoginResponse, UserWithStatus } from '../types';
+import { User, 
+  FriendStatus, 
+  StatusUpdateResponse, 
+  FriendRequest, 
+  FriendDetails, 
+  UserWithStatus, 
+  FriendDetailResponse } 
+  from '../types';
 
 const isTokenExpired = () => {
   const token = Cookies.get('access_token');
@@ -34,13 +41,16 @@ api.interceptors.request.use(async (config) => {
 }, (error) => {
   return Promise.reject(error);
 });
-    
-export const loginUser = async (username: string, password: string): Promise<LoginResponse> => {
-  const response = await api.post('/user/login', { username, password }, { withCredentials: true });
-  const { access_token } = response.data as LoginResponse;
-  
-  // Set the access token in a cookie
-  Cookies.set('access_token', access_token, { expires: 30/1440 }); // expires in 30 minutes
+
+export const loginUser = async (username: string, password: string): Promise<User> => {
+  const response = await api.post('/user/login', { username, password });
+
+  const accessToken = response.headers['access_token'];
+  const expiresIn = parseInt(response.headers['expires'], 10);
+
+  if (accessToken && expiresIn) {
+    Cookies.set('access_token', accessToken, { expires: expiresIn / 86400 }); // `expires` is in seconds
+  }
 
   return response.data;
 };
@@ -66,8 +76,8 @@ export const signup = async (firstName: string, lastName: string, username: stri
   return response.data;
 };
 
-export const searchUsers = async (query: string): Promise<User[]> => {
-  const response = await api.get('/users/search', { params: { query: query } });
+export const searchUsers = async (user_id: number, query: string): Promise<User[]> => {
+  const response = await api.get('/users/search', { params: { user_id, query: query } });
   return response.data;
 };
 
@@ -81,12 +91,19 @@ export const updateStatus = async (status: string, userId: number): Promise<Stat
   return response.data;
 };
 
-export const sendFriendRequest = async (requestor_id: number, recipient_id: number): Promise<void> => {
-  await api.post('/friend/request', { requestor_id, recipient_id});
+export const getStatus = async (userId: number): Promise<StatusUpdateResponse> => {
+  const response = await api.get(`http://127.0.0.1:8000/user/${userId}/status`);
+  return response.data;
 };
 
-export const updateFriendRequest = async (friend_request_id: number, status: string): Promise<void> => {
-  await api.post('/friend/request', { friend_request_id, status });
+export const getFriendListDetails = async (userId: number): Promise<FriendDetails[]> => {
+  const response = await api.get(`http://127.0.0.1:8000/friends/${userId}/details`);
+  return response.data;
+};
+
+
+export const sendFriendRequest = async (requestor_id: number, recipient_id: number): Promise<void> => {
+  await api.post('/friend/request', { requestor_id, recipient_id});
 };
 
 export const getFriendRequests = async (userId: number): Promise<FriendRequest[]> => {
@@ -114,10 +131,17 @@ export const getUserProfile = async (userId: number): Promise<UserWithStatus> =>
   }
 };
 
-export const acceptFriendRequest = async (requestId: string): Promise<void> => {
-  await api.post(`/friends/request/${requestId}/accept`);
+export const getFriendsDetails = async (userId: number): Promise<FriendDetailResponse[]> => {
+  try {
+    const response = await api.get('/friends/details', {
+      params: { user_id: userId },
+    });
+    return response.data;
+  } catch (error: any) {
+    throw new Error(`Failed to fetch friends' details: ${error.message}`);
+  }
 };
 
-export const rejectFriendRequest = async (requestId: string): Promise<void> => {
-  await api.post(`/friends/request/${requestId}/reject`);
+export const updateFriendRequest = async (requestId: number, status: string): Promise<void> => {
+  await api.put('/friend/request/action', {status,friend_request_id:requestId});
 };

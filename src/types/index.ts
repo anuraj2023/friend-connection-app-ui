@@ -44,16 +44,29 @@ export interface User {
     created_at: string;
   }
   
-  export interface Notification {
-    id: string;
-    type: 'friendRequest' | 'statusUpdate';
-    message: string;
-    data: any;
+  // export interface Notification {
+  //   id: string;
+  //   type: 'friendRequest' | 'statusUpdate';
+  //   message: string;
+  //   data: any;
+  // }
+
+  export interface FriendDetailResponse{
+  id: number;
+  username: string;
+  email: string;
+  first_name: string;
+  last_name: string;
+  status: string;
+  status_updated_at: string;
   }
 
-  export interface LoginResponse {
-    access_token: string;
-    token_type: string;
-    user: User;
-
+  export interface FriendDetails{
+    id: number;
+    first_name: string;
+    last_name: string;
+    username: string;
+    email: string;
+    latest_status: string;
+    status_created_at: string;
   }
