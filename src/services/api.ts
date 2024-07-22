@@ -106,7 +106,7 @@ export const sendFriendRequest = async (requestor_id: number, recipient_id: numb
 
 export const getFriendRequests = async (userId: number): Promise<FriendRequest[]> => {
   try {
-    const response = await axios.get('http://127.0.0.1:8000/friend/requests', {
+    const response = await api.get('/friend/requests', {
       params: {
         user_id: userId
       }
@@ -120,9 +120,7 @@ export const getFriendRequests = async (userId: number): Promise<FriendRequest[]
 
 export const getUserProfile = async (userId: number): Promise<UserWithStatus> => {
   try {
-    const url = "http://127.0.0.1:8000/user/"+userId+"/profile"
-    const response = await axios.get(url);
-
+    const response = await api.get(`/user/${userId}/profile`);
     return response.data as UserWithStatus;
   } catch (error: any) {
     throw new Error(`Failed to fetch friend requests: ${error.message}`);
